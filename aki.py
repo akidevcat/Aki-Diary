@@ -50,7 +50,7 @@ def action_login(update, context):
 	msg = update.message.text.split(' ')
 	if len(msg) == 2:
 		update.message.reply_text('Got it! Trying to authenticate you, please wait...')
-		status, user_full_name, data = diary.login_account(msg[0], msg[1])
+		status, user_full_name, data = diary.login_account(msg[0], msg[1], 'http://85.93.46.58:8082/')
 		if status:
 			accounts.accounts[uid] = data
 			update.message.reply_text('Awesome! Now you can ask me anything you want!')
@@ -66,7 +66,7 @@ def action_login(update, context):
 def marks(update, context):
 	uid = update.message.from_user
 	if uid in accounts.accounts:
-		status, data = diary.get_student_journal(accounts.accounts[uid])
+		status, data = diary.get_student_journal(accounts.accounts[uid], 'http://85.93.46.58:8082/')
 		if status:
 			update.message.reply_text('Here you go:\n' + data)
 		else:
@@ -83,7 +83,7 @@ def homework(update, context):
 		now = datetime.today()
 		date = now
 		day_count = 7
-		status, data = diary.get_student_homework(accounts.accounts[uid], day_count, date)
+		status, data = diary.get_student_homework(accounts.accounts[uid], day_count, date, 'http://85.93.46.58:8082/')
 		if status:
 			update.message.reply_text('Here you go:\n' + data)
 		else:

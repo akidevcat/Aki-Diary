@@ -17,8 +17,8 @@ def getpass(p):
 
 
 # Returns {bool result, string user_full_name, string user_data)
-def login_account(login, password):
-    r = requests.post("http://85.93.46.58:8082/login", data={'l': login, 'p': getpass(password)})
+def login_account(login, password, server):
+    r = requests.post(server + "login", data={'l': login, 'p': getpass(password)})
     if r.status_code == 200:
         if len(r.text) > 4:
             uid = r.text.split(',')[0]
@@ -44,11 +44,11 @@ def get_cookies(user):
 
 
 # Returns class id
-def get_student_class(user):
+def get_student_class(user, server):
     sid = user.split('@')[3]
     now = datetime.today()
     c = get_cookies(user)
-    r = requests.post('http://85.93.46.58:8082/act/GET_STUDENT_CLASS',
+    r = requests.post(server + 'act/GET_STUDENT_CLASS',
                       data={'currentDate': '{}.{}.{}'.format(now.day, now.month, now.year), 'student': sid,
                             'uchYear': get_study_year(), 'uchId': '1'},
                       cookies=c)
@@ -105,13 +105,13 @@ def parse_student_homework(s):
     return result
 
 
-def get_student_homework(user, period, from_date):
+def get_student_homework(user, period, from_date, server):
     sid = user.split('@')[3]
     begin = from_date - timedelta(days=period)
     c = get_cookies(user)
-    r = requests.post('http://85.93.46.58:8082/act/GET_STUDENT_DAIRY',
+    r = requests.post(server + 'act/GET_STUDENT_DAIRY',
                       # really??? DAIRY???? this was the problem I couldn't find????
-                      data={'pClassesIds': '', 'student': sid, 'cls': get_student_class(user),
+                      data={'pClassesIds': '', 'student': sid, 'cls': get_student_class(user, server),
                             'begin_dt': '{}.{}.{}'.format(begin.day, begin.month, begin.year),
                             'end_dt': '{}.{}.{}'.format(from_date.day, from_date.month, from_date.year)},
                       cookies=c)
@@ -164,12 +164,12 @@ def parse_student_journal(s, begin):
     return result
 
 
-def get_student_journal(user):
+def get_student_journal(user, server):
     sid = user.split('@')[3]
     begin = get_current_quarter_start()
     c = get_cookies(user)
-    r = requests.post('http://85.93.46.58:8082/act/GET_STUDENT_JOURNAL_DATA',
-                      data={'parallelClasses': '', 'student': sid, 'cls': get_student_class(user)},
+    r = requests.post(server + 'act/GET_STUDENT_JOURNAL_DATA',
+                      data={'parallelClasses': '', 'student': sid, 'cls': get_student_class(user, server)},
                       cookies=c)
     if r.status_code == 200 and len(r.text) > 2:
         return True, parse_student_journal(r.text, begin)
